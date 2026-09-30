@@ -7,3 +7,7 @@ node_modules/
 # Local backups and logs
 *.bak
 *.log
+
+# Local deployment journals and installer
+/deployments/*-pending.json
+/install.sh

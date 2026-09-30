@@ -1,0 +1,14 @@
+{
+  "pool": "0x904f247794A68F83Ec90F441718B88f67d99e98c",
+  "token": "0xFFC95faa3d63Cde504a05B567C600B78C0b41892",
+  "symbol": "USDG",
+  "startBlock": 314456062,
+  "legacyPools": [
+    {
+      "pool": "0x1A8c68d2Fb13C1512AE03b0879e9b392Ad947105",
+      "token": "0x0000000000000000000000000000000000000000",
+      "symbol": "ETH",
+      "startBlock": 314270434
+    }
+  ]
+}

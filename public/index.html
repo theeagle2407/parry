@@ -265,7 +265,8 @@ async function privateRequest(path,options={},wallet=account){
 }
 async function privateSignIn(){
  resetPrivateIdentity();if(!account)throw Error('Connect your wallet first.');
- if(privateIdentity===account&&privateExpiry>Date.now())return syncShared(true);
+ // Parry fast navigation v1
+ if(privateIdentity===account&&privateExpiry>Date.now())return;
  if(signing)return signing;
  const wallet=account,epoch=privateEpoch;
  signing=(async()=>{
@@ -280,7 +281,7 @@ async function privateSignIn(){
    session=await privateRequest('/api/auth/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nonce:challenge.nonce,signature})},wallet);
   }
   if(account!==wallet||privateEpoch!==epoch)return;
-  privateIdentity=session.address;privateExpiry=session.expires;updateWalletHeader();localStorage.setItem('parry.auth-event',String(Date.now()));await syncShared(true);render();
+  privateIdentity=session.address;privateExpiry=session.expires;updateWalletHeader();localStorage.setItem('parry.auth-event',String(Date.now()));void syncShared(true);
  })().finally(()=>{signing=null;resetPrivateIdentity()});resetPrivateIdentity();return signing;
 }
 function syncShared(publish=true){
@@ -308,7 +309,7 @@ function syncShared(publish=true){
    localStorage.setItem('parry.private-outbox',JSON.stringify(privateOutbox));
    state.reviews=privateIdentity===wallet&&wallet?remote.reviews:[];
    localStorage.setItem('parry.v1',JSON.stringify({...state,reviews:[]}));
-   if(!document.querySelector('#newform,#reviewform,#profileform'))render();
+   if(!document.querySelector('#newform,#reviewform,#profileform,#practice-form'))render();
    resetPrivateIdentity();
   }catch(e){if(epoch===privateEpoch){toast(e.message+' Your unsent copy is retained.');resetPrivateIdentity()}}
  });return sharedQueue;
@@ -316,7 +317,7 @@ function syncShared(publish=true){
 var privateButton=document.createElement('button');privateButton.id='private-signin';privateButton.textContent='Sign in';privateButton.hidden=true;
 privateButton.onclick=()=>privateSignIn().catch(e=>toast(e.code===4001||e.code==='ACTION_REJECTED'?'Sign-in cancelled.':e.message));// Sign-in is part of the connection flow; no separate header button.
 resetPrivateIdentity();syncShared();
-addEventListener('hashchange',()=>syncShared());
+addEventListener('hashchange',()=>{if(location.hash.split('/')[0]!=='#create')syncShared()});
 setInterval(()=>{if(document.querySelector('#cards'))refreshCatalog()},30000);
 setInterval(()=>{if(privateIdentity&&privateExpiry<=Date.now()){resetPrivateIdentity();render()}},1000);
 
